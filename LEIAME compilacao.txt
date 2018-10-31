@@ -1,0 +1,15 @@
+instruções para makefile
+
+LINUX
+make all
+compila com flags do gdb para debug
+
+make release
+compila sem flags
+
+make clean
+apaga diretórios criados, arquivos objeto e executável
+
+
+WINDOWS
+onde está make, troque por mingw32-make
