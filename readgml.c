@@ -201,11 +201,11 @@ void create_network(NETWORK* G)
 						}
 						j++;
 					}while(isdigit(line[j]));
-					G->professor->id = lido;
+					G->professor[i].id = lido;
 					lido = 0;
 				}
 
-				while(!isdigit(line[j])){
+				while(isdigit(line[j]) == 0){
 					j++;
 				}
 				if(line[j-2] == ',' && line[j-1] == ' '){
@@ -216,12 +216,12 @@ void create_network(NETWORK* G)
 						}
 						j++;
 					}while(isdigit(line[j]));
-					G->professor->habilitacoes = lido;
+					G->professor[i].habilitacoes = lido;
 					lido = 0;
 				}
 
 
-				while(!isdigit(line[j])){
+				while(isdigit(line[j]) == 0){
 					j++;
 				}
 				if(line[j-5] == ')' && line[j-4] == ':' && line[j-3] == ' ' && line[j-2] == '(' && line[j-1] == 'E'){
@@ -234,7 +234,7 @@ void create_network(NETWORK* G)
 							}
 							j++;
 						}while(isdigit(line[j]));
-						G->professor->preferencia[k] = lido;
+						G->professor[i].preferencia[k] = lido;
 						lido = 0;
 						j += 3;
 					}
@@ -266,204 +266,43 @@ void create_network(NETWORK* G)
 
 			int lido = 0;
 			int j = 0;
-			while(j < strlen(line)){
-				if(line[j] == '(' && line[j+1] == 'E'){
-					j = 2;
-					do{
-						lido += (line[j] - '0');
-						if(isdigit(line[j+1])){
-							lido *= 10;
-						}
-						j++;
-					}while(isdigit(line[j]));
-					G->escola->id = lido;
-					lido = 0;
-				}
-
-				while(!isdigit(line[j])){
+			if(line[j] == '(' && line[j+1] == 'E'){
+				j = 2;
+				do{
+					lido += (line[j] - '0');
+					if(isdigit(line[j+1])){
+						lido *= 10;
+					}
 					j++;
-				}
-				if(line[j-3] == ')' && line[j-2] == ':' && line[j-1] == '('){
-					G->escola->exigencia = (line[j] - '0');
-					j++;
-					lido = 0;
-				}
-
-
-				if(line[j] == ')' && strlen(line) < j+1 && line[j+1] == ':' && line[j+2] == '('){
-					j += 3;
-					G->escola->vagas = (line[j] - '0');
-				}
-				else{
-					G->escola->vagas = 0;
-				}
+				}while(isdigit(line[j]));
+				G->escola[i].id = lido;
+				lido = 0;
 			}
+
+			while(isdigit(line[j]) == 0 && j < strlen(line)){
+				j++;
+			}
+			if(j < strlen(line) &&   (line[j-3] == ')' && line[j-2] == ':' && line[j-1] == '(') ){
+				G->escola[i].exigencia = (line[j] - '0');
+				j++;
+				lido = 0;
+			}
+
+
+			if(j < strlen(line) && j+1 < strlen(line) && (line[j] == ')' && line[j+1] == ':' && line[j+2] == '(') ){
+				j += 3;
+				G->escola[i].vagas = (line[j] - '0');
+			}
+			else{
+				G->escola[i].vagas = 0;
+			}
+			j++;
 		}
 
 
 	}
 
-	// Sort the vertices in increasing order of their IDs so we can find them
-	// quickly later
-
-	// qsort(network->vertex,network->nvertices,sizeof(VERTEX),(void*)cmpid);
 }
-
-
-// Function to find a vertex with a specified ID using binary search.
-// Returns the element in the vertex[] array holding the vertex in question,
-// or -1 if no vertex was found.
-
-// int find_vertex(int id, NETWORK *network)
-// {
-// 	int top,bottom,split;
-// 	int idsplit;
-
-// 	top = network->nvertices;
-// 	if (top<1) return -1;
-// 	bottom = 0;
-// 	split = top/2;
-
-// 	do {
-// 		idsplit = network->vertex[split].id;
-// 		if (id>idsplit) {
-// 			bottom = split + 1;
-// 			split = (top+bottom)/2;
-// 		} else if (id<idsplit) {
-// 			top = split;
-// 			split = (top+bottom)/2;
-// 		} else return split;
-// 	} while (top>bottom);
-
-// 	return -1;
-// }
-    
-
-// Function to determine the degrees of all the vertices by going through
-// the edge data
-
-// void get_degrees(NETWORK *network)
-// {
-// 	int s,t;
-// 	int vs,vt;
-// 	char *ptr;
-// 	char line[LINELENGTH];
-
-// 	reset_buffer();
-
-// 	while (next_line(line)==0) {
-
-// 		// Find the next edge entry
-
-// 		ptr = strstr(line,"edge");
-// 		if (ptr==NULL) continue;
-
-// 		// Read the source and target of the edge
-
-// 		s = t = -1;
-
-// 		do {
-
-// 			ptr = strstr(line,"source");
-// 			if (ptr!=NULL) sscanf(ptr,"source %i",&s);
-// 			ptr = strstr(line,"target");
-// 			if (ptr!=NULL) sscanf(ptr,"target %i",&t);
-
-// 			// If we see a closing square bracket we are done
-
-// 			if (strstr(line,"]")!=NULL) break;
-
-// 		} while (next_line(line)==0);
-
-// 		// Increment the degrees of the appropriate vertex or vertices
-
-// 		if ((s>=0)&&(t>=0)) {
-// 			vs = find_vertex(s,network);
-// 			network->vertex[vs].degree++;
-// 			if (network->directed==0) {
-// 				vt = find_vertex(t,network);
-// 				network->vertex[vt].degree++;
-// 			}
-// 		}
-
-// 	}
-
-//   return;
-// }
-
-
-// Function to read in the edges
-
-// void read_edges(NETWORK *network)
-// {
-// 	int i;
-// 	int s,t;
-// 	int vs,vt;
-// 	int *count;
-// 	double w;
-// 	char *ptr;
-// 	char line[LINELENGTH];
-
-// 	// Malloc space for the edges and temporary space for the edge counts
-// 	// at each vertex
-
-// 	for (i=0; i<network->nvertices; i++) {
-// 		network->vertex[i].edge = malloc(network->vertex[i].degree*sizeof(EDGE));
-// 	}
-// 	count = calloc(network->nvertices,sizeof(int));
-
-// 	// Read in the data
-
-// 	reset_buffer();
-
-// 	while (next_line(line)==0) {
-
-// 		// Find the next edge entry
-
-// 		ptr = strstr(line,"edge");
-// 		if (ptr==NULL) continue;
-
-// 		// Read the source and target of the edge and the edge weight
-
-// 		s = t = -1;
-// 		w = 1.0;
-
-// 		do {
-
-// 			ptr = strstr(line,"source");
-// 			if (ptr!=NULL) sscanf(ptr,"source %i",&s);
-// 			ptr = strstr(line,"target");
-// 			if (ptr!=NULL) sscanf(ptr,"target %i",&t);
-// 			ptr = strstr(line,"value");
-// 			if (ptr!=NULL) sscanf(ptr,"value %lf",&w);
-
-// 			// If we see a closing square bracket we are done
-
-// 			if (strstr(line,"]")!=NULL) break;
-
-// 		} while (next_line(line)==0);
-
-// 		// Add these edges to the appropriate vertices
-
-// 		if ((s>=0)&&(t>=0)) {
-// 			vs = find_vertex(s,network);
-// 			vt = find_vertex(t,network);
-// 			network->vertex[vs].edge[count[vs]].target = vt;
-// 			network->vertex[vs].edge[count[vs]].weight = w;
-// 			count[vs]++;
-// 			if (network->directed==0) {
-// 			network->vertex[vt].edge[count[vt]].target = vs;
-// 			network->vertex[vt].edge[count[vt]].weight = w;
-// 			count[vt]++;
-// 			}
-// 		}
-
-// 	}
-
-// 	free(count);
-// 	return;
-// }
-
 
 // Function to read a complete network
 

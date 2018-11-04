@@ -60,17 +60,16 @@ int main(int argc, char**argv){
     // preenchePeso(&grafo); // A partir de aqui, está tudo pronto para resolver as questões do Projeto
 
 
-
-    printf("Professor %d:  habilitacoes: %d  preferencias: E%d E%d E%d E%d E%d\n", G.professor[0].id, G.professor[0].habilitacoes, G.professor[0].preferencia[0], G.professor[0].preferencia[1], G.professor[0].preferencia[2], G.professor[0].preferencia[3], G.professor[0].preferencia[4]);
-
-
-    // printf("\n\t##### CURSO: %s #####\n\n", grafo.vertex[0].label);
-
-
-    // OrdenacaoTopologica(grafo);
-    // CaminhoCritico(grafo);
-
-
+    int i;
+    printf("\n");
+    for(i = 0; i < 100; i++){
+        printf("Professor %d:  habilitacoes: %d  preferencias: E%d E%d E%d E%d E%d\n", G.professor[i].id, G.professor[i].habilitacoes, G.professor[i].preferencia[i], G.professor[i].preferencia[1], G.professor[i].preferencia[2], G.professor[i].preferencia[3], G.professor[i].preferencia[4]);
+    }
+    printf("\n");
+    for(i = 0; i < 50; i++){
+        printf("Escola %d:  exige %d habilitacoes e tem %d vagas\n", G.escola[i].id, G.escola[i].exigencia, G.escola[i].vagas);
+    }
+    printf("\n");
 
 
     // *********** IMPRIMIR GRAFO **********
@@ -92,7 +91,7 @@ int main(int argc, char**argv){
 
 
     // libera a memória
-    // free_network(&grafo);
+    free_network(&G);
     printf("\n");
     return 0;
 }
