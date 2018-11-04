@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "readgml.h"
 #include "struct.h"
-#include "network.h"
+// #include "network.h"
 
 
 int main(int argc, char**argv){
@@ -29,8 +29,7 @@ int main(int argc, char**argv){
 
 
     // grafo lido do arquivo texto
-    PROF professor[100];
-    ESCOLA escola[50];
+    NETWORK G;
 
     /* Grafo é preenchido com:
         número de matérias obrigatórias do curso de Ciência da Computação (nvertices)
@@ -47,7 +46,7 @@ int main(int argc, char**argv){
             O peso das arestas que saem de um vértice v é inicializado com o número de créditos de v
             O peso de uma matéria é o weight das arestas que CHEGAM a ela (representa a dificuldade pra concluir a materia)
     */
-    if(read_prof_escola(&professor, &escola, file) != 0){ // função parser que lê o arquivo texto e preenche a variavel grafo
+    if(read_prof_escola(&G, file) != 0){ // função parser que lê o arquivo texto e preenche a variavel grafo
         printf("Couldn't read the network.");
         return 1;
     }
@@ -62,7 +61,7 @@ int main(int argc, char**argv){
 
 
 
-
+    printf("Professor %d:  habilitacoes: %d  preferencias: E%d E%d E%d E%d E%d\n", G.professor[0].id, G.professor[0].habilitacoes, G.professor[0].preferencia[0], G.professor[0].preferencia[1], G.professor[0].preferencia[2], G.professor[0].preferencia[3], G.professor[0].preferencia[4]);
 
 
     // printf("\n\t##### CURSO: %s #####\n\n", grafo.vertex[0].label);

@@ -7,9 +7,9 @@
 
 #include <stdio.h>
 #include "struct.h"
-#include "network.h"
+// #include "network.h"
 
-int read_prof_escola(PROF *professor, ESCOLA *escola, FILE *stream);
-void free_network(NETWORK *network);
+int read_prof_escola(NETWORK *G, FILE *stream);
+// void free_network(NETWORK *network);
 
 #endif

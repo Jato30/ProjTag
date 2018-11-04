@@ -21,6 +21,6 @@ typedef struct {
   int nvertices;     // Number of vertices in network
   int directed;      // 1 = directed network, 0 = undirected
   VERTEX *vertex;    // Array of VERTEX structs, one for each vertex
-} NETWORK;
+} NETWORKss;
 
 #endif

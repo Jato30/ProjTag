@@ -1,31 +1,16 @@
-// Functions to read a network stored in a GML file into a NETWORK struct
-//
-// Mark Newman  11 AUG 06
-//
-// To use this software, #include "readgml.h" at the head of your program
-// and then call the following.
-//
-// Function calls:
-//   int read_network(NETWORK *network, FILE *stream)
-//     -- Reads a network from the FILE pointed to by "stream" into the
-//        structure "network".  For the format of NETWORK structs see file
-//        "network.h".  Returns 0 if read was successful.
-//   void free_network(NETWORK *network)
-//     -- Destroys a NETWORK struct again, freeing up the memory
-
-
 // Inclusions
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "struct.h"
-#include "network.h"
+
 
 // Constants
 
-#define LINELENGTH 1000
+#define LINELENGTH 100
 
 // Types
 
@@ -120,32 +105,6 @@ int next_line(char line[LINELENGTH])
 	return 0;
 }
 
-
-
-// Function to establish whether the network read from a given stream is
-// directed or not.  Returns 1 for a directed network, and 0 otherwise.  If
-// the GML file contains no "directed" line then the graph is assumed to be
-// undirected, which is the GML default behavior.
-
-int is_directed()
-{
-	int result=0;
-	char *ptr;
-	char line[LINELENGTH];
-
-	reset_buffer();
-
-	while (next_line(line)==0) {
-		ptr = strstr(line,"directed");
-		if (ptr==NULL) continue;
-		sscanf(ptr,"directed %i",&result);
-		break;
-	}
-
-	return result;
-}
-
-
 // Function to count the vertices in a GML file.  Returns number of vertices.
 
 int count_professores()
@@ -187,18 +146,18 @@ int count_escolas()
 
 // Function to compare the IDs of two vertices
 
-int cmpid(VERTEX *v1p, VERTEX *v2p)
-{
-	if (v1p->id>v2p->id) return 1;
-	if (v1p->id<v2p->id) return -1;
-	return 0;
-}
+// int cmpid(VERTEX *v1p, VERTEX *v2p)
+// {
+// 	if (v1p->id>v2p->id) return 1;
+// 	if (v1p->id<v2p->id) return -1;
+// 	return 0;
+// }
 
 
 // Function to allocate space for a network structure stored in a GML file
 // and determine the parameters (id, label) of each of the vertices.
 
-void create_network(PROF* professor, ESCOLA* escola)
+void create_network(NETWORK* G)
 {
 	int i;
 	int length;
@@ -207,23 +166,13 @@ void create_network(PROF* professor, ESCOLA* escola)
 	char line[LINELENGTH];
 	char label[LINELENGTH];
 
-	// Determine whether the network is directed
-
-	// network->directed = is_directed();
-
-	// Count the vertices
-
-	// network->nvertices = count_vertices();
-
-	// Make space for the vertices
-
-	professor = calloc(count_professores(),sizeof(PROF));
-	escola = calloc(count_escolas(),sizeof(ESCOLA));
 
 	// Go through the file reading the details of each vertex one by one
 
 	reset_buffer();
-	for (i=0; i<count_professores(); i++) {
+	int qtd_prof = count_professores();
+	reset_buffer();
+	for (i=0; i<qtd_prof; i++) {
 
 		// Skip to next "node" entry
 
@@ -231,26 +180,75 @@ void create_network(PROF* professor, ESCOLA* escola)
 			next_line(line);
 		} while (strstr(line,"(P")==NULL);
 
+
 		// Read in the details of this vertex
 
 
 			// Look for ID
 
 		ptr = strstr(line,"(P");
-		if (ptr!=NULL) sscanf(ptr,"(P%i, %i)",&professor->id, &professor->habilitacoes);
+		if (ptr!=NULL){
 
-		// Look for label
+			int lido = 0;
+			int j = 0;
+			while(j < strlen(line)){
+				if(line[j] == '(' && line[j+1] == 'P'){
+					j = 2;
+					do{
+						lido += (line[j] - '0');
+						if(isdigit(line[j+1])){
+							lido *= 10;
+						}
+						j++;
+					}while(isdigit(line[j]));
+					G->professor->id = lido;
+					lido = 0;
+				}
 
-		ptr = (strstr(line,"(P"));
-		if (ptr!=NULL) {
-			sscanf(ptr,"): (E%i, E%i, E%i, E%i, E%i)",&professor->preferencia[0],&professor->preferencia[1],&professor->preferencia[2],&professor->preferencia[3],&professor->preferencia[4]);
+				while(!isdigit(line[j])){
+					j++;
+				}
+				if(line[j-2] == ',' && line[j-1] == ' '){
+					do{
+						lido += (line[j] - '0');
+						if(isdigit(line[j+1])){
+							lido *= 10;
+						}
+						j++;
+					}while(isdigit(line[j]));
+					G->professor->habilitacoes = lido;
+					lido = 0;
+				}
+
+
+				while(!isdigit(line[j])){
+					j++;
+				}
+				if(line[j-5] == ')' && line[j-4] == ':' && line[j-3] == ' ' && line[j-2] == '(' && line[j-1] == 'E'){
+					int k;
+					for(k = 0; k < 5; k++){
+						do{
+							lido += (line[j] - '0');
+							if(isdigit(line[j+1])){
+								lido *= 10;
+							}
+							j++;
+						}while(isdigit(line[j]));
+						G->professor->preferencia[k] = lido;
+						lido = 0;
+						j += 3;
+					}
+				}
+
+			}
 		}
-
 
 	}
 
 	reset_buffer();
-	for (i=0; i<count_escolas(); i++) {
+	int qtd_escola = count_escolas();
+	reset_buffer();
+	for (i=0; i<qtd_escola; i++) {
 
 		// Skip to next "node" entry
 
@@ -264,14 +262,42 @@ void create_network(PROF* professor, ESCOLA* escola)
 			// Look for ID
 
 		ptr = strstr(line,"):(");
-		if (ptr!=NULL) sscanf(ptr,"(E%i):(%i)",&escola->id, &escola->exigencia);
+		if (ptr!=NULL){
 
-		// Look for label
+			int lido = 0;
+			int j = 0;
+			while(j < strlen(line)){
+				if(line[j] == '(' && line[j+1] == 'E'){
+					j = 2;
+					do{
+						lido += (line[j] - '0');
+						if(isdigit(line[j+1])){
+							lido *= 10;
+						}
+						j++;
+					}while(isdigit(line[j]));
+					G->escola->id = lido;
+					lido = 0;
+				}
 
-		ptr = (strstr(line,"(E%i):(%i):(%i)"));
-		if (ptr!=NULL) {
-			int lixo;
-			sscanf(ptr,"(E%i):(%i):(%i))",lixo, lixo, &escola->vagas);
+				while(!isdigit(line[j])){
+					j++;
+				}
+				if(line[j-3] == ')' && line[j-2] == ':' && line[j-1] == '('){
+					G->escola->exigencia = (line[j] - '0');
+					j++;
+					lido = 0;
+				}
+
+
+				if(line[j] == ')' && strlen(line) < j+1 && line[j+1] == ':' && line[j+2] == '('){
+					j += 3;
+					G->escola->vagas = (line[j] - '0');
+				}
+				else{
+					G->escola->vagas = 0;
+				}
+			}
 		}
 
 
@@ -288,163 +314,163 @@ void create_network(PROF* professor, ESCOLA* escola)
 // Returns the element in the vertex[] array holding the vertex in question,
 // or -1 if no vertex was found.
 
-int find_vertex(int id, NETWORK *network)
-{
-	int top,bottom,split;
-	int idsplit;
+// int find_vertex(int id, NETWORK *network)
+// {
+// 	int top,bottom,split;
+// 	int idsplit;
 
-	top = network->nvertices;
-	if (top<1) return -1;
-	bottom = 0;
-	split = top/2;
+// 	top = network->nvertices;
+// 	if (top<1) return -1;
+// 	bottom = 0;
+// 	split = top/2;
 
-	do {
-		idsplit = network->vertex[split].id;
-		if (id>idsplit) {
-			bottom = split + 1;
-			split = (top+bottom)/2;
-		} else if (id<idsplit) {
-			top = split;
-			split = (top+bottom)/2;
-		} else return split;
-	} while (top>bottom);
+// 	do {
+// 		idsplit = network->vertex[split].id;
+// 		if (id>idsplit) {
+// 			bottom = split + 1;
+// 			split = (top+bottom)/2;
+// 		} else if (id<idsplit) {
+// 			top = split;
+// 			split = (top+bottom)/2;
+// 		} else return split;
+// 	} while (top>bottom);
 
-	return -1;
-}
+// 	return -1;
+// }
     
 
 // Function to determine the degrees of all the vertices by going through
 // the edge data
 
-void get_degrees(NETWORK *network)
-{
-	int s,t;
-	int vs,vt;
-	char *ptr;
-	char line[LINELENGTH];
+// void get_degrees(NETWORK *network)
+// {
+// 	int s,t;
+// 	int vs,vt;
+// 	char *ptr;
+// 	char line[LINELENGTH];
 
-	reset_buffer();
+// 	reset_buffer();
 
-	while (next_line(line)==0) {
+// 	while (next_line(line)==0) {
 
-		// Find the next edge entry
+// 		// Find the next edge entry
 
-		ptr = strstr(line,"edge");
-		if (ptr==NULL) continue;
+// 		ptr = strstr(line,"edge");
+// 		if (ptr==NULL) continue;
 
-		// Read the source and target of the edge
+// 		// Read the source and target of the edge
 
-		s = t = -1;
+// 		s = t = -1;
 
-		do {
+// 		do {
 
-			ptr = strstr(line,"source");
-			if (ptr!=NULL) sscanf(ptr,"source %i",&s);
-			ptr = strstr(line,"target");
-			if (ptr!=NULL) sscanf(ptr,"target %i",&t);
+// 			ptr = strstr(line,"source");
+// 			if (ptr!=NULL) sscanf(ptr,"source %i",&s);
+// 			ptr = strstr(line,"target");
+// 			if (ptr!=NULL) sscanf(ptr,"target %i",&t);
 
-			// If we see a closing square bracket we are done
+// 			// If we see a closing square bracket we are done
 
-			if (strstr(line,"]")!=NULL) break;
+// 			if (strstr(line,"]")!=NULL) break;
 
-		} while (next_line(line)==0);
+// 		} while (next_line(line)==0);
 
-		// Increment the degrees of the appropriate vertex or vertices
+// 		// Increment the degrees of the appropriate vertex or vertices
 
-		if ((s>=0)&&(t>=0)) {
-			vs = find_vertex(s,network);
-			network->vertex[vs].degree++;
-			if (network->directed==0) {
-				vt = find_vertex(t,network);
-				network->vertex[vt].degree++;
-			}
-		}
+// 		if ((s>=0)&&(t>=0)) {
+// 			vs = find_vertex(s,network);
+// 			network->vertex[vs].degree++;
+// 			if (network->directed==0) {
+// 				vt = find_vertex(t,network);
+// 				network->vertex[vt].degree++;
+// 			}
+// 		}
 
-	}
+// 	}
 
-  return;
-}
+//   return;
+// }
 
 
 // Function to read in the edges
 
-void read_edges(NETWORK *network)
-{
-	int i;
-	int s,t;
-	int vs,vt;
-	int *count;
-	double w;
-	char *ptr;
-	char line[LINELENGTH];
+// void read_edges(NETWORK *network)
+// {
+// 	int i;
+// 	int s,t;
+// 	int vs,vt;
+// 	int *count;
+// 	double w;
+// 	char *ptr;
+// 	char line[LINELENGTH];
 
-	// Malloc space for the edges and temporary space for the edge counts
-	// at each vertex
+// 	// Malloc space for the edges and temporary space for the edge counts
+// 	// at each vertex
 
-	for (i=0; i<network->nvertices; i++) {
-		network->vertex[i].edge = malloc(network->vertex[i].degree*sizeof(EDGE));
-	}
-	count = calloc(network->nvertices,sizeof(int));
+// 	for (i=0; i<network->nvertices; i++) {
+// 		network->vertex[i].edge = malloc(network->vertex[i].degree*sizeof(EDGE));
+// 	}
+// 	count = calloc(network->nvertices,sizeof(int));
 
-	// Read in the data
+// 	// Read in the data
 
-	reset_buffer();
+// 	reset_buffer();
 
-	while (next_line(line)==0) {
+// 	while (next_line(line)==0) {
 
-		// Find the next edge entry
+// 		// Find the next edge entry
 
-		ptr = strstr(line,"edge");
-		if (ptr==NULL) continue;
+// 		ptr = strstr(line,"edge");
+// 		if (ptr==NULL) continue;
 
-		// Read the source and target of the edge and the edge weight
+// 		// Read the source and target of the edge and the edge weight
 
-		s = t = -1;
-		w = 1.0;
+// 		s = t = -1;
+// 		w = 1.0;
 
-		do {
+// 		do {
 
-			ptr = strstr(line,"source");
-			if (ptr!=NULL) sscanf(ptr,"source %i",&s);
-			ptr = strstr(line,"target");
-			if (ptr!=NULL) sscanf(ptr,"target %i",&t);
-			ptr = strstr(line,"value");
-			if (ptr!=NULL) sscanf(ptr,"value %lf",&w);
+// 			ptr = strstr(line,"source");
+// 			if (ptr!=NULL) sscanf(ptr,"source %i",&s);
+// 			ptr = strstr(line,"target");
+// 			if (ptr!=NULL) sscanf(ptr,"target %i",&t);
+// 			ptr = strstr(line,"value");
+// 			if (ptr!=NULL) sscanf(ptr,"value %lf",&w);
 
-			// If we see a closing square bracket we are done
+// 			// If we see a closing square bracket we are done
 
-			if (strstr(line,"]")!=NULL) break;
+// 			if (strstr(line,"]")!=NULL) break;
 
-		} while (next_line(line)==0);
+// 		} while (next_line(line)==0);
 
-		// Add these edges to the appropriate vertices
+// 		// Add these edges to the appropriate vertices
 
-		if ((s>=0)&&(t>=0)) {
-			vs = find_vertex(s,network);
-			vt = find_vertex(t,network);
-			network->vertex[vs].edge[count[vs]].target = vt;
-			network->vertex[vs].edge[count[vs]].weight = w;
-			count[vs]++;
-			if (network->directed==0) {
-			network->vertex[vt].edge[count[vt]].target = vs;
-			network->vertex[vt].edge[count[vt]].weight = w;
-			count[vt]++;
-			}
-		}
+// 		if ((s>=0)&&(t>=0)) {
+// 			vs = find_vertex(s,network);
+// 			vt = find_vertex(t,network);
+// 			network->vertex[vs].edge[count[vs]].target = vt;
+// 			network->vertex[vs].edge[count[vs]].weight = w;
+// 			count[vs]++;
+// 			if (network->directed==0) {
+// 			network->vertex[vt].edge[count[vt]].target = vs;
+// 			network->vertex[vt].edge[count[vt]].weight = w;
+// 			count[vt]++;
+// 			}
+// 		}
 
-	}
+// 	}
 
-	free(count);
-	return;
-}
+// 	free(count);
+// 	return;
+// }
 
 
 // Function to read a complete network
 
-int read_prof_escola(PROF *professor, ESCOLA* escola, FILE *stream)
+int read_prof_escola(NETWORK* G, FILE *stream)
 {
 	fill_buffer(stream);
-	create_network(professor, escola);
+	create_network(G);
 	// get_degrees(network);
 	// read_edges(network);
 	free_buffer();
@@ -455,13 +481,13 @@ int read_prof_escola(PROF *professor, ESCOLA* escola, FILE *stream)
 
 // Function to free the memory used by a network again
 
-void free_network(NETWORK *network)
-{
-	int i;
+// void free_network(NETWORK *network)
+// {
+// 	int i;
 
-	for (i=0; i<network->nvertices; i++) {
-		free(network->vertex[i].edge);
-		free(network->vertex[i].label);
-	}
-	free(network->vertex);
-}
+// 	for (i=0; i<network->nvertices; i++) {
+// 		free(network->vertex[i].edge);
+// 		free(network->vertex[i].label);
+// 	}
+// 	free(network->vertex);
+// }
