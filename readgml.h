@@ -10,6 +10,6 @@
 // #include "network.h"
 
 int read_prof_escola(NETWORK *G, FILE *stream);
-// void free_network(NETWORK *network);
+void free_network(NETWORK *network);
 
 #endif

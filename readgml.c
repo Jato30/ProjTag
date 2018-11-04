@@ -481,13 +481,13 @@ int read_prof_escola(NETWORK* G, FILE *stream)
 
 // Function to free the memory used by a network again
 
-// void free_network(NETWORK *network)
-// {
-// 	int i;
+void free_network(NETWORK *network)
+{
+	int i;
 
-// 	for (i=0; i<network->nvertices; i++) {
-// 		free(network->vertex[i].edge);
-// 		free(network->vertex[i].label);
-// 	}
-// 	free(network->vertex);
-// }
+	for (i=0; i<100; i++) {
+		free(network->professor[i].preferencia);
+	}
+	free(network->professor);
+	free(network->escola);
+}
