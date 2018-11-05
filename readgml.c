@@ -144,20 +144,10 @@ int count_escolas()
 }
 
 
-// Function to compare the IDs of two vertices
-
-// int cmpid(VERTEX *v1p, VERTEX *v2p)
-// {
-// 	if (v1p->id>v2p->id) return 1;
-// 	if (v1p->id<v2p->id) return -1;
-// 	return 0;
-// }
-
-
 // Function to allocate space for a network structure stored in a GML file
 // and determine the parameters (id, label) of each of the vertices.
 
-void create_network(NETWORK* G)
+void montar_estrutura(PROF_ESC* G)
 {
 	int i;
 	int length;
@@ -304,12 +294,17 @@ void create_network(NETWORK* G)
 
 }
 
+void criar_grafo(PROF_ESC* G){
+	
+}
+
 // Function to read a complete network
 
-int read_prof_escola(NETWORK* G, FILE *stream)
+int read_prof_escola(PROF_ESC* G, FILE *stream)
 {
 	fill_buffer(stream);
-	create_network(G);
+	montar_estrutura(G);
+	criar_grafo(G);
 	// get_degrees(network);
 	// read_edges(network);
 	free_buffer();
@@ -320,13 +315,13 @@ int read_prof_escola(NETWORK* G, FILE *stream)
 
 // Function to free the memory used by a network again
 
-void free_network(NETWORK *network)
+void free_memo(PROF_ESC *G)
 {
 	int i;
 
 	for (i=0; i<100; i++) {
-		free(network->professor[i].preferencia);
+		free(G->professor[i].preferencia);
 	}
-	free(network->professor);
-	free(network->escola);
+	free(G->professor);
+	free(G->escola);
 }

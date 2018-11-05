@@ -29,7 +29,7 @@ int main(int argc, char**argv){
 
 
     // grafo lido do arquivo texto
-    NETWORK G;
+    PROF_ESC G;
 
     /* Grafo é preenchido com:
         número de matérias obrigatórias do curso de Ciência da Computação (nvertices)
@@ -91,7 +91,7 @@ int main(int argc, char**argv){
 
 
     // libera a memória
-    free_network(&G);
+    free_memo(&G);
     printf("\n");
     return 0;
 }
