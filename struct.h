@@ -29,7 +29,8 @@ typedef struct {
 typedef struct {
   int nvertices;     // Number of vertices in network
   int directed;      // 1 = directed network, 0 = undirected
-  VERTEX *vertex;    // Array of VERTEX structs, one for each vertex
+  VERTEX *vertex_p;    // Array of VERTEX structs, one for each vertex of type PROF
+	VERTEX *vertex_e;    // Array of VERTEX structs, one for each vertex of type ESCOLA
 } NETWORK;
 
 

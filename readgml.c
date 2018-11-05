@@ -295,7 +295,61 @@ void montar_estrutura(PROF_ESC* G)
 }
 
 void criar_grafo(PROF_ESC* G){
-	
+	G->grafo.directed = 0; // Não-direcionado
+	G->grafo.nvertices = 150; // 100 professores + 50 escolas
+
+	G->grafo.vertex_p = calloc(100, sizeof(VERTEX)); // 100 vertices do tipo PROF
+	G->grafo.vertex_e = calloc(50, sizeof(VERTEX)); // 50 vertices do tipo ESCOLA
+
+
+
+	// PREENCHE VERTICES DE PROFESSORES
+	int i, j, k;
+
+
+
+
+	// PREENCHE VERTICES DE PROFESSORES
+	int count_edges = 0;
+	for(i = 0; i < 100){
+		G->grafo.vertex_p[i].id = G->professor[i].id; // id do vértice é o id do professor (OBS. id começa em 1, diferente do indice de arrays que começa em 0)
+
+
+
+		// Acrescenta vértices de profs assim: cada escola que exige habilitacoes menores ou iguais ao que este tem
+		count_edges = 0;
+		for(k=0; k < 50; k++){
+			if(G->grafo.vertex_e[i].exigencia <= G->grafo.vertex_p[i].habilitacoes){
+				count_edges++;
+			}
+		}
+
+
+		G->grafo.vertex_p[i].degree = 5 + count_edges; // todos têm 5 preferencias + a quantidade de escolas que eu possuo habilitacoes suficientes para sua exigencia
+		G->grafo.vertex_p[i].edge = calloc(5+count_edges, sizeof(EDGE)); // Sempre 5 arestas que são as preferencias de escola de um professor
+		for(j=0; j<5+count_edges; j++){ // Cada professor tem uma aresta para a escola de interesse
+			if(j<5){ // Se target estiver dentro das preferencias
+				G->grafo.vertex_p[i].edge[j].target = G->professor[i].preferencia[j] - 1; // Note que target é o índice do array de vertices_e
+				G->grafo.vertex_p[i].edge[j].weight = j+1; // Peso é a ordem de preferencia. Se peso=1, é o que o prof mais quer
+			}
+			else{
+				G->grafo.vertex_p[i].edge[j].target = G->professor[i].preferencia[j] - 1; // Note que target é o índice do array de vertices_e
+				G->grafo.vertex_p[i].edge[j].weight = j+1; // Peso é a ordem de preferencia. Se peso=1, é o que o prof mais quer
+			}
+		}
+	}
+
+
+
+	/* ******* TO DO: ********
+
+		* Vértices de profs já estao assim: cada vertice aponta (aresta) para suas escolas pretendidas
+		* REMOVER: cada vertice aponta (aresta) para suas escolas pretendidas
+		* ACRESCENTAR: arestas de profs devem estar APENAS entre os profs e escolas em que os profs possuem o minimo de habilitacoes exigidas
+						os que possuem preferencia, coloca-se peso (pra ficar mais facil de emparelhar depois)
+
+	*/
+
 }
 
 // Function to read a complete network
@@ -324,4 +378,9 @@ void free_memo(PROF_ESC *G)
 	}
 	free(G->professor);
 	free(G->escola);
+
+	// for(i=0; i < G->grafo[0].nvertices; i++){
+	// 	free(G->grafo[0].)
+	// }
+	// free(G->grafo);
 }
