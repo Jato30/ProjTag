@@ -53,15 +53,14 @@ int main(int argc, char**argv){
 
     fclose(file);
 
-    /*
-        Os pesos foram inicializados com o número de créditos da matéria,
-        esta função multiplica hardcoded esse valor por um valor empírico n inteiro | 1 <= n <= 3
-    */
-    // preenchePeso(&grafo); // A partir de aqui, está tudo pronto para resolver as questões do Projeto
+
+
+
 
 
     int i;
     printf("\n");
+    printf("\t IMPRIME INFOS LIDAS\n\n");
     for(i = 0; i < 100; i++){
         printf("Professor %d:  habilitacoes: %d  preferencias: E%d E%d E%d E%d E%d\n", G.professor[i].id, G.professor[i].habilitacoes, G.professor[i].preferencia[i], G.professor[i].preferencia[1], G.professor[i].preferencia[2], G.professor[i].preferencia[3], G.professor[i].preferencia[4]);
     }
@@ -88,7 +87,8 @@ int main(int argc, char**argv){
         }
         printf("}\n");
     }
-    // printf("\n");
+    printf("\n");
+    
     printf("\n\t**************\t ESCOLAS (id) :\t { P id  DOS PROFESSORES QUE POSSUEM HABILITACOES SUFICIENTES }\t ***************\n");
     for(i=0; i<50; i++){
         printf("\nE(%d): {", G.grafo.vertex_e[i].id);

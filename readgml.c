@@ -323,6 +323,15 @@ void criar_grafo(PROF_ESC* G){
 			if(G->professor[j].habilitacoes >= G->escola[i].exigencia){
 				// Cria Aresta
 				G->grafo.vertex_e[i].edge[count_edges].target = G->professor[j].id; // Note que target é o id do professor, e NÃO o índice no vetor
+
+				// PREENCHE PESOS (As preferencias de escola dos professores são o peso)
+				// Notação: Maior preferencia: degree = 1, menor preferencia degree = 5
+				// Como não é realmente um degree, fiz assim para que 1 seja a primeira preferencia (pra ficar mais facil de emparelhar)
+				for(k = 0; k < 5; k++){
+					if(G->grafo.vertex_e[i].id == G->professor[j].preferencia[k]){
+						G->grafo.vertex_e[i].edge[count_edges].weight = k+1;
+					}
+				}
 				count_edges++;
 			}
 		}
@@ -350,11 +359,25 @@ void criar_grafo(PROF_ESC* G){
 		for(j=0; j < 50; j++){
 			if(G->professor[i].habilitacoes >= G->escola[j].exigencia){
 				G->grafo.vertex_p[i].edge[count_edges].target = G->escola[j].id;
+
+				// PREENCHE PESOS (As preferencias de escola dos professores são o peso)
+				// Notação: Maior preferencia: degree = 1, menor preferencia degree = 5
+				// Como não é realmente um degree, fiz assim para que 1 seja a primeira preferencia (pra ficar mais facil de emparelhar)
+				for(k = 0; k < 5; k++){
+					if(G->grafo.vertex_p[i].edge[count_edges].target == G->professor[j].preferencia[k]){
+						G->grafo.vertex_p[i].edge[count_edges].weight = k+1;
+					}
+				}
 				count_edges++;
 			}
 		}
 		count_edges = 0;
 	}
+
+
+	// for(i=0; i<100; i++){
+
+	// }
 
 }
 
@@ -393,4 +416,5 @@ void free_memo(PROF_ESC *G)
 	}
 	free(G->grafo.vertex_p);
 	free(G->grafo.vertex_e);
-	
+}
+
