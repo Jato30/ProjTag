@@ -374,11 +374,6 @@ void criar_grafo(PROF_ESC* G){
 		count_edges = 0;
 	}
 
-
-	// for(i=0; i<100; i++){
-
-	// }
-
 }
 
 // Function to read a complete network
