@@ -22,7 +22,7 @@ typedef struct {
 typedef struct {
   int id;            // GML ID number of vertex
   int degree;        // Degree of vertex (out-degree for directed nets)
-  char *label;       // GML label of vertex.  NULL if no label specified
+  // char *label;       // GML label of vertex.  NULL if no label specified
   EDGE *edge;        // Array of EDGE structs, one for each neighbor
 } VERTEX;
 

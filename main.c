@@ -74,19 +74,33 @@ int main(int argc, char**argv){
 
     // *********** IMPRIMIR GRAFO **********
 
-    // int i;
-    // for(i = 0; i < grafo.nvertices; i++){
-    //     printf("\n(%d): %s\n", grafo.vertex[i].id, grafo.vertex[i].label);
-    //     printf("Pre requisitos:\n");
-    //     int j, k;
-    //     for(j = 0; j < grafo.nvertices; j++){
-    //         for(k = 0; k < grafo.vertex[j].degree; k++){
-    //             if(i == grafo.vertex[j].edge[k].target){
-    //                 printf("\t(%d): %s\n", grafo.vertex[j].id, grafo.vertex[j].label);
-    //             }
-    //         }
-    //     }
-    // }
+    int j;
+    printf("\n");
+    printf("\n\t**************\t PROFESSOR (id) :\t { E id  DAS ESCOLAS QUE PODEM ACEITA-LO }\t ***************\n\n");
+    for(i = 0; i < 100; i++){
+        printf("P(%d): {", G.grafo.vertex_p[i].id);
+
+        for(j = 0; j < G.grafo.vertex_p[i].degree; j++){
+            printf("E%d", G.grafo.vertex_p[i].edge[j].target);
+            if(j+1 < G.grafo.vertex_p[i].degree){
+                printf(";");
+            }
+        }
+        printf("}\n");
+    }
+    // printf("\n");
+    printf("\n\t**************\t ESCOLAS (id) :\t { P id  DOS PROFESSORES QUE POSSUEM HABILITACOES SUFICIENTES }\t ***************\n");
+    for(i=0; i<50; i++){
+        printf("\nE(%d): {", G.grafo.vertex_e[i].id);
+
+        for(j=0; j < G.grafo.vertex_e[i].degree; j++){
+            printf("P%d", G.grafo.vertex_e[i].edge[j].target);
+            if(j+1 < G.grafo.vertex_e[i].degree){
+                printf(";");
+            }
+        }
+        printf("}\n");
+    }
 
 
 

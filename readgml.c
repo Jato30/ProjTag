@@ -303,52 +303,58 @@ void criar_grafo(PROF_ESC* G){
 
 
 
-	// PREENCHE VERTICES DE PROFESSORES
+	// PREENCHE VERTICES DE ESCOLAS
 	int i, j, k;
-
-
-
-
-	// PREENCHE VERTICES DE PROFESSORES
 	int count_edges = 0;
-	for(i = 0; i < 100){
-		G->grafo.vertex_p[i].id = G->professor[i].id; // id do vértice é o id do professor (OBS. id começa em 1, diferente do indice de arrays que começa em 0)
-
-
-
-		// Acrescenta vértices de profs assim: cada escola que exige habilitacoes menores ou iguais ao que este tem
-		count_edges = 0;
-		for(k=0; k < 50; k++){
-			if(G->grafo.vertex_e[i].exigencia <= G->grafo.vertex_p[i].habilitacoes){
+	for(i = 0; i < 50; i++){
+		G->grafo.vertex_e[i].id = G->escola[i].id;
+		for(j=0; j < 100; j++){
+			if(G->professor[j].habilitacoes >= G->escola[i].exigencia){
 				count_edges++;
 			}
 		}
-
-
-		G->grafo.vertex_p[i].degree = 5 + count_edges; // todos têm 5 preferencias + a quantidade de escolas que eu possuo habilitacoes suficientes para sua exigencia
-		G->grafo.vertex_p[i].edge = calloc(5+count_edges, sizeof(EDGE)); // Sempre 5 arestas que são as preferencias de escola de um professor
-		for(j=0; j<5+count_edges; j++){ // Cada professor tem uma aresta para a escola de interesse
-			if(j<5){ // Se target estiver dentro das preferencias
-				G->grafo.vertex_p[i].edge[j].target = G->professor[i].preferencia[j] - 1; // Note que target é o índice do array de vertices_e
-				G->grafo.vertex_p[i].edge[j].weight = j+1; // Peso é a ordem de preferencia. Se peso=1, é o que o prof mais quer
-			}
-			else{
-				G->grafo.vertex_p[i].edge[j].target = G->professor[i].preferencia[j] - 1; // Note que target é o índice do array de vertices_e
-				G->grafo.vertex_p[i].edge[j].weight = j+1; // Peso é a ordem de preferencia. Se peso=1, é o que o prof mais quer
+		G->grafo.vertex_e[i].edge = calloc(count_edges, sizeof(EDGE));
+		G->grafo.vertex_e[i].degree = count_edges;
+		count_edges = 0;
+	}
+	count_edges = 0;
+	for(i = 0; i < 50; i++){
+		for(j=0; j < 100; j++){
+			if(G->professor[j].habilitacoes >= G->escola[i].exigencia){
+				// Cria Aresta
+				G->grafo.vertex_e[i].edge[count_edges].target = G->professor[j].id; // Note que target é o id do professor, e NÃO o índice no vetor
+				count_edges++;
 			}
 		}
+		count_edges = 0;
 	}
 
 
 
-	/* ******* TO DO: ********
+	// PREENCHE VERTICES DE PROFESSORES
+	count_edges = 0;
+	for(i = 0; i < 100; i++){
+		G->grafo.vertex_p[i].id = G->professor[i].id;
+		for(j=0; j < 50; j++){
+			if(G->professor[i].habilitacoes >= G->escola[j].exigencia){
+				count_edges++;
+			}
+		}
+		G->grafo.vertex_p[i].edge = calloc(count_edges, sizeof(EDGE));
+		G->grafo.vertex_p[i].degree = count_edges;
+		count_edges = 0;
+	}
 
-		* Vértices de profs já estao assim: cada vertice aponta (aresta) para suas escolas pretendidas
-		* REMOVER: cada vertice aponta (aresta) para suas escolas pretendidas
-		* ACRESCENTAR: arestas de profs devem estar APENAS entre os profs e escolas em que os profs possuem o minimo de habilitacoes exigidas
-						os que possuem preferencia, coloca-se peso (pra ficar mais facil de emparelhar depois)
-
-	*/
+	count_edges = 0;
+	for(i = 0; i < 100; i++){
+		for(j=0; j < 50; j++){
+			if(G->professor[i].habilitacoes >= G->escola[j].exigencia){
+				G->grafo.vertex_p[i].edge[count_edges].target = G->escola[j].id;
+				count_edges++;
+			}
+		}
+		count_edges = 0;
+	}
 
 }
 
@@ -379,8 +385,12 @@ void free_memo(PROF_ESC *G)
 	free(G->professor);
 	free(G->escola);
 
-	// for(i=0; i < G->grafo[0].nvertices; i++){
-	// 	free(G->grafo[0].)
-	// }
-	// free(G->grafo);
-}
+	for (i=0; i<100; i++) {
+		free(G->grafo.vertex_p[i].edge);
+		if(i<50){
+			free(G->grafo.vertex_e[i].edge);
+		}
+	}
+	free(G->grafo.vertex_p);
+	free(G->grafo.vertex_e);
+	
